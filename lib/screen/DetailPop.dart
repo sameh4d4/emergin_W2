@@ -18,10 +18,13 @@ class DetailPop extends StatefulWidget {
 
 class _DetailPopState extends State<DetailPop> {
     PopMovie pm=new PopMovie(id: 0, title: "title", homepage: "homepage", overview: "overview", release_date: "01-01-2000", runtime: 100, vote_average: "100", genres: [], persons: []);
+    bool _imageAda=false;
+
     @override
     void initState() {
       super.initState();
       bacaData();
+      // CheckImage();
     }
 
     Future<String> fetchData() async {
@@ -48,12 +51,22 @@ class _DetailPopState extends State<DetailPop> {
       });
     }
 
+    Future<String> CheckImage() async{
+      final response = await http.get(Uri.parse(apiAddress+apiDir+"images/"+widget.movie_id.toString()+".jpg"));
+      if (response.statusCode == 200) {
+        setState(() {
+          _imageAda=true;
+        });
+        return "Success";
+      }
+      return "failed";
+    }
+
     Future onGoBack(dynamic value) async {
       setState(() {
           bacaData();
       });
     }
-
 
     void deleteData() async {
       final response = await http.post(
@@ -85,9 +98,37 @@ class _DetailPopState extends State<DetailPop> {
             margin: EdgeInsets.all(10),
             child: Column(children: <Widget>[
               Text(pm.title, style: TextStyle(fontSize: 25)),
-              Image.network(
-                  apiAddress+apiDir+"images/"+widget.movie_id.toString()+".jpg"
+              Container(
+                height: 300,
+                width: 400,
+                child: FutureBuilder(
+                  future: CheckImage(),
+                  builder: (context, snapshot) {
+                    if(snapshot.hasData){
+                      if(_imageAda){
+                        return Image.network(
+                            apiAddress+apiDir+"images/"+widget.movie_id.toString()+".jpg"
+                        );
+                      }
+                      else{
+                        return Image.network(
+                            "http://lorempixel.com/400/300"
+                        );
+                      }
+                    }
+                    else {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                  },
+                ),
               ),
+              // _imageAda?
+              // Image.network(
+              //     apiAddress+apiDir+"images/"+widget.movie_id.toString()+".jpg"
+              // ):
+              // Image.network(
+              //     "http://lorempixel.com/400/300"
+              // ),
               Padding(
                   padding: EdgeInsets.all(10),
                   child: Text(pm.overview, style: TextStyle(fontSize: 15))
@@ -108,7 +149,7 @@ class _DetailPopState extends State<DetailPop> {
                   padding: EdgeInsets.all(10),
                   child: ListView.builder(
                       shrinkWrap: true,
-                      itemCount: pm.genres.length,
+                      itemCount: pm.persons.length,
                       itemBuilder: (BuildContext ctxt, int index) {
                         return new Text(pm.persons[index]["nama_asli"]+" as "+pm.persons[index]["cast"]);
                       }

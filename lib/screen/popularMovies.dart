@@ -146,7 +146,7 @@ class _PopularMovieState extends State<PopularMovie> {
               },
             ),
             Container(
-                height: MediaQuery.of(context).size.height / 2,
+                height: MediaQuery.of(context).size.height,
                  child: FutureBuilder(
                     future: fetchData(),
                     builder: (context, snapshot) {
